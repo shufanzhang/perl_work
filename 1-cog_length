@@ -1,0 +1,38 @@
+# usr/bin/perl -w
+use strict;
+
+unless (@ARGV==2) {                                               #@ARGV传给脚本的命令行参数列表 
+    die"Usage: perl $0 <input.fa> <out.len\n";              #当命令行参数不是2的时候输出使用说明
+}
+
+my ($infile,$outfile) = @ARGV;                                    #把命令行参数赋值给输入文件和输出文件
+open(IN,"<$infile") || die "error: can't open infile: $infile";      #打开输入文件句柄IN
+open(OUT,">$outfile") || die "error: can't make outfile: $outfile"; #打开输出文件句柄OUT
+
+my $line=<IN>;
+
+if($line=~m/^>(\S+)/)	#~m//与^>(\S+)进行匹配,^>表示匹配以>开头的
+{
+	print OUT ">$1\t";  #$1为(\S+)括号内的内容
+}
+
+my $seq;
+
+while($line=<IN>)#while为一行一行遍历输入信息
+{
+	if($line !~ /^>/)#不以>开头
+	{
+		$line=~s/[\r\n\s+]//g;	#对于序列，去除换行符，g表示global对全局，[]表示匹配符合[]内的内容，然后~s/a/b/用b替换a
+		$seq.=$line;#$seq=$seq.$line  起连接的作用
+	}elsif($line=~/^>(\S+)/)#以>开头
+	{
+		print OUT length($seq);
+		$seq="";#每次取完序列长度后清空变量
+		print OUT "\n>$1\t";
+	}
+}
+#最后一个序列后没有>号了要单独输出
+print OUT length($seq)."\n";
+
+close IN;
+close OUT;
