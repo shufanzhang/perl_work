@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+use strict;
+my ($disease,$human,$result) = @ARGV;                           
+open(A,"<$disease") || die "error: can't open file: $disease";      
+open(B,"<$human") || die "error: can't open file: $human"; 
+open(OUT,">$result") || die "error: can't write in file: $result";
+
+print OUT "REPORTED GENE(S)\tGeneID\tSymbol\n";
+#创建哈希数组并遍历human-genes
+my %hash;
+while (my $B_gene=<B>) {
+	chomp($B_gene);
+	my ($hkey,$hvalue)=split(/\t/,$B_gene);
+	$hash{$hkey}=$hvalue;
+}
+#遍历disease-genename
+my $A_gene=<A>;
+while ($A_gene=<A>) {
+	chomp($A_gene);
+	my @A_gene_line=split(/, /,$A_gene);
+	if (@A_gene_line) {#判断建立的数组是否为空
+		print OUT "@A_gene_line\t";#输出疾病名称
+		my @keys;
+		my @values;
+		foreach my $i (@A_gene_line) {
+			foreach my $key (sort keys %hash) {
+				if ($i eq $hash{$key}) {
+					@keys=(@keys,$key);
+					@values=(@values,$hash{$key});
+				#将比对成功的ID和Symbol存储在数组中		
+				}
+			}
+
+		}
+		print OUT "@keys\t@values";
+		undef @keys;
+		undef @values;
+		print OUT "\n";	
+	}
+
+}
+
+
+
