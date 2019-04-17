@@ -1,0 +1,48 @@
+# usr/bin/perl -w
+use strict;
+
+unless (@ARGV==2) {                                               #@ARGV传给脚本的命令行参数列表 
+    die"Usage: perl $0 <input.fa> <out.GCcontent\n";              #当命令行参数不是2的时候输出使用说明
+}
+
+my ($infile,$outfile) = @ARGV;                                    #把命令行参数赋值给输入文件和输出文件
+open(IN,$infile) || die "error: can't open infile: $infile";      #打开输入文件句柄IN
+open(OUT,">$outfile") || die "error: can't make outfile: $outfile"; #打开输出文件句柄OUT
+
+
+#申明哈希
+my %count;
+my $seq;
+my $line=<IN>;
+chomp($line);
+print OUT "$line";
+while($line=<IN>)
+{
+	if($line !~ /^>/){
+		$line=~s/[\r\n\s+]//g; 									       		                  
+		$seq.=$line;
+		my @array=split("",$line);		
+		for(my $i=0;$i<@array;$i++){
+			$count{$array[$i]}++;                              
+		}
+	}
+	elsif($line=~/^>(.*)\n$/){
+
+		my $len=$count{A}+$count{T}+$count{G}+$count{C};
+		my $GC=( $count{G} + $count{C} );
+		my $gc_count = $len ? $GC / $len : 0; #计算GC含量，如果长度为0，GC含量算0
+		print OUT "\t$len\t$gc_count\n$seq\n";
+		%count="";
+		$seq="";
+		print OUT ">$1";
+	}
+}
+
+my $len=$count{A}+$count{T}+$count{G}+$count{C};
+my $GC=( $count{G} + $count{C} );
+my $gc_count = $len ? $GC / $len : 0;
+print OUT "\t$len\t$gc_count\n$seq";
+
+close IN;
+close OUT;
+
