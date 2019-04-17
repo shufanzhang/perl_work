@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+open(IN,"<D:/perl_work/sequence.fasta") or die "cannot open =\n";
+open(OUT,">D:/perl_work/result1.txt") or die "cannot make \n";
+#打开指定文件
+#open(IN,"$ARGV[0]")||die"CAN NOT OPEN $ARGV[0]\n"; 
+#open(OUT,">$ARGV[1]")||die"CAN NOT OPEN $ARGV[1]\n";
+#perl readfile.pl sequence.fasta result1.txt
+my @tp53=<IN>;
+
+print OUT "$tp53[0]";
+chomp @tp53;
+my $content=join("",@tp53);
+print $content;
+my @seq=split(//,$content);
+my %a;
+
+for($i=0;$i<@seq;$i++)
+{
+$a{$seq[$i]}++;
+}
+
+foreach my $ATGC(sort keys %a)
+{
+print"$ATGC=>$a{$ATGC}\n";
+}
+
+close IN;
+close OUT;
+
+
+ 
